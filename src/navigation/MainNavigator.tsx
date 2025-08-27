@@ -11,9 +11,23 @@ import DashboardScreen from '../screens/Dashboard';
 import MoodInputScreen from '../screens/MoodInput';
 import JournalScreen from '../screens/Journal';
 import AnalyticsScreen from '../screens/Analytics';
+import JournalEntryScreen from '../screens/JournalEntry';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
+
+const screenOptions = {
+  headerStyle: {
+    backgroundColor: theme.colors.surface,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  headerTitleStyle: {
+    fontSize: theme.typography.h2.fontSize,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+};
 
 const MainTabs = () => {
   return (
@@ -27,15 +41,7 @@ const MainTabs = () => {
           paddingBottom: theme.spacing.xs,
           height: 60,
         },
-        headerStyle: {
-          backgroundColor: theme.colors.surface,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        headerTitleStyle: {
-          ...theme.typography.h2,
-          color: theme.colors.text,
-        },
+        ...screenOptions,
       }}
     >
       <Tab.Screen 
@@ -82,11 +88,18 @@ const MainTabs = () => {
 export const MainNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen 
           name="MainTabs" 
           component={MainTabs}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="JournalEntry"
+          component={JournalEntryScreen}
+          options={{
+            title: 'Journal Entry',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,6 +1,6 @@
 export type RootStackParamList = {
   MainTabs: undefined;
-  JournalEntry: { id?: string };
+  JournalEntry: { id?: string } | undefined;
   MoodDetails: { id: string };
 };
 

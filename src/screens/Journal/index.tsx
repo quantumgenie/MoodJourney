@@ -1,46 +1,127 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Typography, Card, Button, Spacer } from '../../components/common';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
+import { Typography, Button, Spacer } from '../../components/common';
+import { SearchBar } from '../../components/journal/SearchBar';
+import { JournalEntryCard } from '../../components/journal/JournalEntryCard';
 import { theme } from '../../theme/theme';
+import { useJournalStorage } from '../../hooks/useJournalStorage';
+import { JournalEntry } from '../../types/journal';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../navigation/types';
+
+type JournalScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const JournalScreen = () => {
-  // Dummy data for demonstration
-  const entries = [
-    { id: '1', date: 'March 19, 2024', title: 'A Productive Day', mood: 'happy' },
-    { id: '2', date: 'March 18, 2024', title: 'Reflecting on Goals', mood: 'calm' },
-    { id: '3', date: 'March 17, 2024', title: 'Weekend Thoughts', mood: 'neutral' },
-  ];
+  const navigation = useNavigation<JournalScreenNavigationProp>();
+  const { getJournalEntries, deleteJournalEntry, searchJournalEntries, isLoading } = useJournalStorage();
+  
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadEntries = async () => {
+    try {
+      if (searchQuery.trim()) {
+        const searchResults = await searchJournalEntries({ searchText: searchQuery });
+        setEntries(searchResults);
+      } else {
+        const allEntries = await getJournalEntries();
+        setEntries(allEntries);
+      }
+    } catch (error) {
+      console.error('Error loading entries:', error);
+      Alert.alert('Error', 'Failed to load journal entries');
+    }
+  };
+
+  useEffect(() => {
+    loadEntries();
+  }, [searchQuery]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadEntries();
+    setRefreshing(false);
+  };
+
+  const handleDelete = async (entryId: string) => {
+    Alert.alert(
+      'Delete Entry',
+      'Are you sure you want to delete this entry?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteJournalEntry(entryId);
+              await loadEntries();
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete entry');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
+
+  const handleFilter = () => {
+    // TODO: Implement filter modal
+    console.log('Filter pressed');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Typography variant="h2">My Journal</Typography>
-        <Button onPress={() => console.log('New entry')}>
+        <Button 
+          onPress={() => navigation.navigate('JournalEntry')}
+        >
           New Entry
         </Button>
       </View>
       
       <Spacer />
       
-      <ScrollView>
-        {entries.map(entry => (
-          <Card key={entry.id} style={styles.entryCard}>
-            <Typography variant="caption" color="disabled">
-              {entry.date}
+      <SearchBar
+        value={searchQuery}
+        onChangeText={handleSearch}
+        onFilterPress={handleFilter}
+      />
+      
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+        {entries.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Typography variant="body1" color="disabled" centered>
+              {searchQuery
+                ? 'No entries found matching your search'
+                : 'No journal entries yet. Start writing!'}
             </Typography>
-            <Spacer size="xs" />
-            <Typography variant="h3">{entry.title}</Typography>
-            <Spacer />
-            <View style={styles.cardFooter}>
-              <Typography variant="body2" color="disabled">
-                Mood: {entry.mood}
-              </Typography>
-              <Button variant="text" onPress={() => console.log('View entry', entry.id)}>
-                Read More
-              </Button>
-            </View>
-          </Card>
-        ))}
+          </View>
+        ) : (
+          entries.map(entry => (
+            <JournalEntryCard
+              key={entry.id}
+              entry={entry}
+              onPress={() => navigation.navigate('JournalEntry', { id: entry.id })}
+              onDelete={() => handleDelete(entry.id)}
+            />
+          ))
+        )}
+        <Spacer size="xl" />
       </ScrollView>
     </View>
   );
@@ -57,14 +138,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  entryCard: {
-    padding: theme.spacing.md,
-    marginVertical: theme.spacing.sm,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: theme.spacing.xl * 2,
   },
 });
 
