@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Alert, Platform, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  StyleSheet, 
+  ScrollView, 
+  TextInput, 
+  Alert, 
+  Platform, 
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Typography, Card, Button, Spacer } from '../../components/common';
 import { ActivityTags, IntensitySlider } from '../../components/mood';
@@ -51,16 +62,16 @@ const MoodInputScreen = () => {
     };
 
     try {
-      console.log('Saving mood entry:', moodEntry);
+      console.log('Attempting to save mood entry:', moodEntry);
       await saveMoodEntry(moodEntry);
-
-      const allEntries = await getMoodEntries();
-      console.log('All stored entries:', allEntries);
-
+      
+      const entries = await getMoodEntries();
+      console.log('All stored entries:', entries);
+      
       Alert.alert('Success', 'Mood entry saved successfully!');
       navigation.goBack();
     } catch (err) {
-      console.error('Error saving mood entry:', err);        
+      console.error('Error saving mood entry:', err);
       Alert.alert('Error', 'Failed to save mood entry. Please try again.');
     }
   };
@@ -86,117 +97,135 @@ const MoodInputScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Typography variant="h2" centered>How are you feeling?</Typography>
-      <Spacer size="lg" />
-      
-      {/* Mood Selection */}
-      <View style={styles.moodGrid}>
-        {moods.map((mood) => (
-          <Card
-            key={mood.id}
-            style={[
-              styles.moodCard,
-              state.mood === mood.id && { borderColor: mood.color, borderWidth: 2 }
-            ]}
-            onTouchEnd={() => setState(prev => ({ ...prev, mood: mood.id as MoodType }))}
-          >
-            <Typography variant="h3" centered>{mood.label}</Typography>
-          </Card>
-        ))}
-      </View>
-
-      {state.mood && (
-        <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Typography variant="h2" centered>How are you feeling?</Typography>
           <Spacer size="lg" />
-
-          {/* Intensity Slider */}
-          <Card style={styles.section}>
-            <Typography variant="h3">Intensity</Typography>
-            <Spacer />
-            <IntensitySlider
-              value={state.intensity}
-              onValueChange={(intensity) => setState(prev => ({ ...prev, intensity }))}
-              selectedMood={state.mood}
-            />
-          </Card>
-
-          <Spacer />
-
-          {/* Activity Tags */}
-          <Card style={styles.section}>
-            <Typography variant="h3">Activities</Typography>
-            <Spacer />
-            <ActivityTags
-              selectedTags={state.activities}
-              onToggleTag={handleActivityToggle}
-            />
-          </Card>
-
-          <Spacer />
-
-          {/* Notes Input */}
-          <Card style={styles.section}>
-            <Typography variant="h3">Notes</Typography>
-            <Spacer />
-            <TextInput
-              style={styles.notesInput}
-              multiline
-              numberOfLines={4}
-              value={state.notes}
-              onChangeText={(notes) => setState(prev => ({ ...prev, notes }))}
-              placeholder="Add any thoughts or context..."
-              placeholderTextColor={theme.colors.disabled}
-            />
-          </Card>
-
-          <Spacer />
-
-          {/* Time Selection */}
-          <Card style={styles.section}>
-            <Typography variant="h3">Time</Typography>
-            <Spacer />
-            <TouchableOpacity
-              onPress={() => setShowTimePicker(true)}
-              style={styles.timeSelector}
-            >
-              <Typography variant="body1">{formatTime(state.timestamp)}</Typography>
-            </TouchableOpacity>
-            {showTimePicker && (
-              <DateTimePicker
-                value={state.timestamp}
-                mode="time"
-                is24Hour={true}
-                onChange={handleTimeChange}
-              />
-            )}
-          </Card>
-
-          <Spacer size="xl" />
-
-          {/* Save Button */}
-          <View style={styles.actionContainer}>
-            <Button 
-              size="large"
-              onPress={handleSave}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : 'Save Mood'}
-            </Button>
+          
+          {/* Mood Selection */}
+          <View style={styles.moodGrid}>
+            {moods.map((mood) => (
+              <Card
+                key={mood.id}
+                style={[
+                  styles.moodCard,
+                  state.mood === mood.id && { borderColor: mood.color, borderWidth: 2 }
+                ]}
+                onTouchEnd={() => setState(prev => ({ ...prev, mood: mood.id as MoodType }))}
+              >
+                <Typography variant="h3" centered>{mood.label}</Typography>
+              </Card>
+            ))}
           </View>
 
-          <Spacer size="xl" />
-        </>
-      )}
-    </ScrollView>
+          {state.mood && (
+            <>
+              <Spacer size="lg" />
+
+              {/* Intensity Slider */}
+              <Card style={styles.section}>
+                <Typography variant="h3">Intensity</Typography>
+                <Spacer />
+                <IntensitySlider
+                  value={state.intensity}
+                  onValueChange={(intensity) => setState(prev => ({ ...prev, intensity }))}
+                  selectedMood={state.mood}
+                />
+              </Card>
+
+              <Spacer />
+
+              {/* Activity Tags */}
+              <Card style={styles.section}>
+                <Typography variant="h3">Activities</Typography>
+                <Spacer />
+                <ActivityTags
+                  selectedTags={state.activities}
+                  onToggleTag={handleActivityToggle}
+                />
+              </Card>
+
+              <Spacer />
+
+              {/* Notes Input */}
+              <Card style={styles.section}>
+                <Typography variant="h3">Notes</Typography>
+                <Spacer />
+                <TextInput
+                  style={styles.notesInput}
+                  multiline
+                  numberOfLines={4}
+                  value={state.notes}
+                  onChangeText={(notes) => setState(prev => ({ ...prev, notes }))}
+                  placeholder="Add any thoughts or context..."
+                  placeholderTextColor={theme.colors.disabled}
+                  textAlignVertical="top"
+                />
+              </Card>
+
+              <Spacer />
+
+              {/* Time Selection */}
+              <Card style={styles.section}>
+                <Typography variant="h3">Time</Typography>
+                <Spacer />
+                <TouchableOpacity
+                  onPress={() => setShowTimePicker(true)}
+                  style={styles.timeSelector}
+                >
+                  <Typography variant="body1">{formatTime(state.timestamp)}</Typography>
+                </TouchableOpacity>
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={state.timestamp}
+                    mode="time"
+                    is24Hour={true}
+                    onChange={handleTimeChange}
+                  />
+                )}
+              </Card>
+
+              <Spacer size="xl" />
+
+              {/* Save Button */}
+              <View style={styles.actionContainer}>
+                <Button 
+                  size="large"
+                  onPress={handleSave}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Saving...' : 'Save Mood'}
+                </Button>
+              </View>
+
+              <Spacer size="xl" />
+            </>
+          )}
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
     backgroundColor: theme.colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: theme.spacing.md,
   },
   moodGrid: {
     flexDirection: 'row',
@@ -212,12 +241,11 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
   },
   notesInput: {
+    minHeight: 100,
     borderWidth: 1,
     borderColor: theme.colors.disabled,
     borderRadius: theme.borderRadius.sm,
     padding: theme.spacing.sm,
-    minHeight: 100,
-    textAlignVertical: 'top',
   },
   actionContainer: {
     alignItems: 'center',
