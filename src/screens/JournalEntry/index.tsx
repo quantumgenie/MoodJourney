@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { 
+  View, 
+  StyleSheet, 
+  ScrollView, 
+  TextInput, 
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Typography, Card, Button, Spacer } from '../../components/common';
 import { ActivityTags } from '../../components/mood';
@@ -74,86 +84,103 @@ const JournalEntryScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <TextInput
-        style={styles.titleInput}
-        value={entry.title}
-        onChangeText={(title) => setEntry(prev => ({ ...prev, title }))}
-        placeholder="Entry Title"
-        placeholderTextColor={theme.colors.disabled}
-      />
-
-      <Spacer />
-
-      <Card style={styles.section}>
-        <Typography variant="h3">Mood</Typography>
-        <Spacer />
-        <View style={styles.moodGrid}>
-          {moods.map((mood) => (
-            <Button
-              key={mood}
-              variant={entry.mood === mood ? 'contained' : 'outlined'}
-              onPress={() => setEntry(prev => ({ ...prev, mood }))}
-              style={[
-                styles.moodButton,
-                { borderColor: theme.colors[mood] }
-              ]}
-            >
-              {mood}
-            </Button>
-          ))}
-        </View>
-      </Card>
-
-      <Spacer />
-
-      <Card style={styles.section}>
-        <Typography variant="h3">Activities</Typography>
-        <Spacer />
-        <ActivityTags
-          selectedTags={entry.activities || []}
-          onToggleTag={handleActivityToggle}
-        />
-      </Card>
-
-      <Spacer />
-
-      <Card style={styles.section}>
-        <Typography variant="h3">Content</Typography>
-        <Spacer />
-        <TextInput
-          style={styles.contentInput}
-          value={entry.content}
-          onChangeText={(content) => setEntry(prev => ({ ...prev, content }))}
-          placeholder="Write your thoughts..."
-          placeholderTextColor={theme.colors.disabled}
-          multiline
-          textAlignVertical="top"
-        />
-      </Card>
-
-      <Spacer size="xl" />
-
-      <View style={styles.actions}>
-        <Button
-          size="large"
-          onPress={handleSave}
-          disabled={isLoading}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
         >
-          {isLoading ? 'Saving...' : 'Save Entry'}
-        </Button>
-      </View>
+          <TextInput
+            style={styles.titleInput}
+            value={entry.title}
+            onChangeText={(title) => setEntry(prev => ({ ...prev, title }))}
+            placeholder="Entry Title"
+            placeholderTextColor={theme.colors.disabled}
+          />
 
-      <Spacer size="xl" />
-    </ScrollView>
+          <Spacer />
+
+          <Card style={styles.section}>
+            <Typography variant="h3">Mood</Typography>
+            <Spacer />
+            <View style={styles.moodGrid}>
+              {moods.map((mood) => (
+                <Button
+                  key={mood}
+                  variant={entry.mood === mood ? 'contained' : 'outlined'}
+                  onPress={() => setEntry(prev => ({ ...prev, mood }))}
+                  style={[
+                    styles.moodButton,
+                    { borderColor: theme.colors[mood] }
+                  ]}
+                >
+                  {mood}
+                </Button>
+              ))}
+            </View>
+          </Card>
+
+          <Spacer />
+
+          <Card style={styles.section}>
+            <Typography variant="h3">Activities</Typography>
+            <Spacer />
+            <ActivityTags
+              selectedTags={entry.activities || []}
+              onToggleTag={handleActivityToggle}
+            />
+          </Card>
+
+          <Spacer />
+
+          <Card style={styles.section}>
+            <Typography variant="h3">Content</Typography>
+            <Spacer />
+            <TextInput
+              style={styles.contentInput}
+              value={entry.content}
+              onChangeText={(content) => setEntry(prev => ({ ...prev, content }))}
+              placeholder="Write your thoughts..."
+              placeholderTextColor={theme.colors.disabled}
+              multiline
+              textAlignVertical="top"
+            />
+          </Card>
+
+          <Spacer size="xl" />
+
+          <View style={styles.actions}>
+            <Button
+              size="large"
+              onPress={handleSave}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Entry'}
+            </Button>
+          </View>
+
+          <Spacer size="xl" />
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
     backgroundColor: theme.colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: theme.spacing.md,
   },
   titleInput: {
     fontSize: 24,
