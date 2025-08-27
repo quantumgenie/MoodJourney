@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as NavigationBar from 'expo-navigation-bar';
 import { MainTabParamList, RootStackParamList } from './types';
 import { theme } from '../theme/theme';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Import screens
 import DashboardScreen from '../screens/Dashboard';
@@ -30,6 +33,15 @@ const screenOptions = {
 };
 
 const MainTabs = () => {
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      // Hide the navigation bar
+      NavigationBar.setVisibilityAsync('hidden');
+      // Optional: Set the background color to match your app
+      NavigationBar.setBackgroundColorAsync(theme.colors.surface);
+    }
+  }, []);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -40,6 +52,7 @@ const MainTabs = () => {
           borderTopColor: theme.colors.disabled + '20',
           paddingBottom: theme.spacing.xs,
           height: 60,
+          paddingTop: theme.spacing.xs,
         },
         ...screenOptions,
       }}
@@ -87,21 +100,23 @@ const MainTabs = () => {
 
 export const MainNavigator = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={screenOptions}>
-        <Stack.Screen 
-          name="MainTabs" 
-          component={MainTabs}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="JournalEntry"
-          component={JournalEntryScreen}
-          options={{
-            title: 'Journal Entry',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={screenOptions}>
+          <Stack.Screen 
+            name="MainTabs" 
+            component={MainTabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="JournalEntry"
+            component={JournalEntryScreen}
+            options={{
+              title: 'Journal Entry',
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
