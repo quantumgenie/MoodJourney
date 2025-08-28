@@ -3,9 +3,10 @@ import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-nativ
 import { Typography, Button, Spacer } from '../../components/common';
 import { SearchBar } from '../../components/journal/SearchBar';
 import { JournalEntryCard } from '../../components/journal/JournalEntryCard';
+import { FilterModal } from '../../components/journal/FilterModal';
 import { theme } from '../../theme/theme';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
-import { JournalEntry } from '../../types/journal';
+import { JournalEntry, JournalFilter } from '../../types/journal';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -19,16 +20,18 @@ const JournalScreen = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filter, setFilter] = useState<JournalFilter>({});
 
   const loadEntries = async () => {
     try {
-      if (searchQuery.trim()) {
-        const searchResults = await searchJournalEntries({ searchText: searchQuery });
-        setEntries(searchResults);
-      } else {
-        const allEntries = await getJournalEntries();
-        setEntries(allEntries);
-      }
+      const searchFilter: JournalFilter = {
+        ...filter,
+        searchText: searchQuery.trim(),
+      };
+
+      const searchResults = await searchJournalEntries(searchFilter);
+      setEntries(searchResults);
     } catch (error) {
       console.error('Error loading entries:', error);
       Alert.alert('Error', 'Failed to load journal entries');
@@ -37,7 +40,7 @@ const JournalScreen = () => {
 
   useEffect(() => {
     loadEntries();
-  }, [searchQuery]);
+  }, [searchQuery, filter]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -72,8 +75,20 @@ const JournalScreen = () => {
   };
 
   const handleFilter = () => {
-    // TODO: Implement filter modal
-    console.log('Filter pressed');
+    setShowFilterModal(true);
+  };
+
+  const handleApplyFilter = (newFilter: JournalFilter) => {
+    setFilter(newFilter);
+  };
+
+  const getFilterSummary = () => {
+    const parts = [];
+    if (filter.mood) parts.push(`Mood: ${filter.mood}`);
+    if (filter.activities?.length ?? 0 > 0) {
+      parts.push(`Activities: ${filter.activities?.length} selected`);
+    }
+    return parts.join(' • ');
   };
 
   return (
@@ -94,6 +109,23 @@ const JournalScreen = () => {
         onChangeText={handleSearch}
         onFilterPress={handleFilter}
       />
+
+      {(filter.mood || (filter.activities?.length ?? 0) > 0) && (
+        <>
+          <View style={styles.filterSummary}>
+            <Typography variant="caption" color="disabled">
+              {getFilterSummary()}
+            </Typography>
+            <Button
+              variant="text"
+              onPress={() => setFilter({})}
+            >
+              Clear
+            </Button>
+          </View>
+          <Spacer size="sm" />
+        </>
+      )}
       
       <ScrollView
         refreshControl={
@@ -106,8 +138,8 @@ const JournalScreen = () => {
         {entries.length === 0 ? (
           <View style={styles.emptyState}>
             <Typography variant="body1" color="disabled" centered>
-              {searchQuery
-                ? 'No entries found matching your search'
+              {searchQuery || Object.keys(filter).length > 0
+                ? 'No entries found matching your criteria'
                 : 'No journal entries yet. Start writing!'}
             </Typography>
           </View>
@@ -123,6 +155,13 @@ const JournalScreen = () => {
         )}
         <Spacer size="xl" />
       </ScrollView>
+
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={handleApplyFilter}
+        currentFilter={filter}
+      />
     </View>
   );
 };
@@ -143,6 +182,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: theme.spacing.xl * 2,
+  },
+  filterSummary: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 
