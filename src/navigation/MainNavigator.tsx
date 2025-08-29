@@ -37,8 +37,6 @@ const MainTabs = () => {
     if (Platform.OS === 'android') {
       // Hide the navigation bar
       NavigationBar.setVisibilityAsync('hidden');
-      // Optional: Set the background color to match your app
-      NavigationBar.setBackgroundColorAsync(theme.colors.surface);
     }
   }, []);
 
