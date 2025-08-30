@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ViewProps } from 'react-native';
 import { theme } from '../../theme/theme';
 
-interface CardProps extends ViewProps {
+export interface CardProps extends ViewProps {
   variant?: 'elevated' | 'outlined';
   padding?: keyof typeof theme.spacing;
 }

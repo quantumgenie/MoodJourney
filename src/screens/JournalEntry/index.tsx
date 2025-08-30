@@ -10,8 +10,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Typography, Card, Button, Spacer } from '../../components/common';
+import { Typography, Button, Spacer, AnimatedCard, AnimatedTextInputComponent } from '../../components/common';
 import { ActivityTags } from '../../components/mood';
 import { theme } from '../../theme/theme';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
@@ -95,17 +96,19 @@ const JournalEntryScreen = () => {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <TextInput
+          <AnimatedTextInputComponent
             style={styles.titleInput}
             value={entry.title}
             onChangeText={(title) => setEntry(prev => ({ ...prev, title }))}
             placeholder="Entry Title"
             placeholderTextColor={theme.colors.disabled}
+            delay={0}
+            duration={600}
           />
 
           <Spacer />
 
-          <Card style={styles.section}>
+          <AnimatedCard style={styles.section} delay={150} duration={600}>
             <Typography variant="h3">Mood</Typography>
             <Spacer />
             <View style={styles.moodGrid}>
@@ -123,22 +126,22 @@ const JournalEntryScreen = () => {
                 </Button>
               ))}
             </View>
-          </Card>
+          </AnimatedCard>
 
           <Spacer />
 
-          <Card style={styles.section}>
+          <AnimatedCard style={styles.section} delay={300} duration={600}>
             <Typography variant="h3">Activities</Typography>
             <Spacer />
             <ActivityTags
               selectedTags={entry.activities || []}
               onToggleTag={handleActivityToggle}
             />
-          </Card>
+          </AnimatedCard>
 
           <Spacer />
 
-          <Card style={styles.section}>
+          <AnimatedCard style={styles.section} delay={450} duration={600}>
             <Typography variant="h3">Content</Typography>
             <Spacer />
             <TextInput
@@ -150,11 +153,14 @@ const JournalEntryScreen = () => {
               multiline
               textAlignVertical="top"
             />
-          </Card>
+          </AnimatedCard>
 
           <Spacer size="xl" />
 
-          <View style={styles.actions}>
+          <Animated.View 
+            style={styles.actions}
+            entering={FadeInDown.delay(600).duration(600)}
+          >
             <Button
               size="large"
               onPress={handleSave}
@@ -162,7 +168,7 @@ const JournalEntryScreen = () => {
             >
               {isLoading ? 'Saving...' : 'Save Entry'}
             </Button>
-          </View>
+          </Animated.View>
 
           <Spacer size="xl" />
         </ScrollView>

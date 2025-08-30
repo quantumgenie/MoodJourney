@@ -8,7 +8,7 @@ import {
 import { theme } from '../../theme/theme';
 import { Typography } from './Typography';
 
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchableOpacityProps {
   variant?: 'contained' | 'outlined' | 'text';
   size?: 'small' | 'medium' | 'large';
   color?: keyof typeof theme.colors;
