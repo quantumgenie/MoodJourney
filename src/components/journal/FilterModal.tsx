@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { Typography, Card, Button, Spacer } from '../common';
 import { ActivityTags } from '../mood';
 import { theme } from '../../theme/theme';
@@ -65,36 +65,42 @@ export const FilterModal: React.FC<FilterModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          <Spacer size="lg" />
+          <ScrollView 
+            style={styles.scrollContent} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContentContainer}
+          >
+            <Spacer size="lg" />
 
-          <Typography variant="h3">By Mood</Typography>
-          <Spacer />
-          <View style={styles.moodGrid}>
-            {moods.map((mood) => (
-              <Button
-                key={mood}
-                variant={selectedMood === mood ? 'contained' : 'outlined'}
-                onPress={() => setSelectedMood(mood === selectedMood ? undefined : mood)}
-                style={[
-                  styles.moodButton,
-                  { borderColor: theme.colors[mood] }
-                ]}
-              >
-                {mood}
-              </Button>
-            ))}
-          </View>
+            <Typography variant="h3">By Mood</Typography>
+            <Spacer />
+            <View style={styles.moodGrid}>
+              {moods.map((mood) => (
+                <Button
+                  key={mood}
+                  variant={selectedMood === mood ? 'contained' : 'outlined'}
+                  onPress={() => setSelectedMood(mood === selectedMood ? undefined : mood)}
+                  style={[
+                    styles.moodButton,
+                    { borderColor: theme.colors[mood] }
+                  ]}
+                >
+                  {mood}
+                </Button>
+              ))}
+            </View>
 
-          <Spacer size="lg" />
+            <Spacer size="lg" />
 
-          <Typography variant="h3">By Activities</Typography>
-          <Spacer />
-          <ActivityTags
-            selectedTags={selectedActivities}
-            onToggleTag={handleActivityToggle}
-          />
+            <Typography variant="h3">By Activities</Typography>
+            <Spacer />
+            <ActivityTags
+              selectedTags={selectedActivities}
+              onToggleTag={handleActivityToggle}
+            />
 
-          <Spacer size="xl" />
+            <Spacer size="xl" />
+          </ScrollView>
 
           <View style={styles.actions}>
             <Button
@@ -136,6 +142,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  scrollContent: {
+    // flex: 1,
+    maxHeight: 450,
+  },
+  scrollContentContainer: {
+    paddingBottom: theme.spacing.md,
+  },
   moodGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -146,7 +159,11 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: theme.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.disabled + '20',
   },
   actionButton: {
     flex: 1,
