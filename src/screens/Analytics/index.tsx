@@ -141,7 +141,7 @@ const AnalyticsScreen = () => {
   // Show loading state
   if (moodLoading || journalLoading) {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.header}>
           <Typography variant="h2">Mood Analytics</Typography>
           <View style={styles.timeFrameButtons}>
@@ -170,12 +170,12 @@ const AnalyticsScreen = () => {
             Analyzing your mood and journal data
           </Typography>
         </Card>
-      </View>
+      </ScrollView>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
         <Typography variant="h2">Mood Analytics</Typography>
         <View style={styles.timeFrameButtons}>
@@ -237,8 +237,11 @@ const AnalyticsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
+    padding: theme.spacing.md,
+    paddingBottom: theme.spacing.xl + 60, // Extra padding for tab bar (60px) + spacing
   },
   header: {
     flexDirection: 'row',

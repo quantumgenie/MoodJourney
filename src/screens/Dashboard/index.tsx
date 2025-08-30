@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Typography, Card, Button, Spacer } from '../../components/common';
 import { theme } from '../../theme/theme';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -52,7 +52,7 @@ const DashboardScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Typography variant="h1" centered>Welcome to MoodJourney</Typography>
       <Spacer size="lg" />
       
@@ -103,15 +103,18 @@ const DashboardScreen = () => {
           </Button>
         </Card>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: theme.spacing.md,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
+    padding: theme.spacing.md,
+    paddingBottom: theme.spacing.xl + 60, // Extra padding for tab bar (60px) + spacing
   },
   card: {
     padding: theme.spacing.md,

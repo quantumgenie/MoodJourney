@@ -163,6 +163,7 @@ const JournalScreen = () => {
           ))
         )}
         <Spacer size="xl" />
+        <Spacer size="lg" />
       </ScrollView>
 
       <FilterModal
