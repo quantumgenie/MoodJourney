@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   View, 
   StyleSheet, 
@@ -12,7 +12,9 @@ import {
   Keyboard,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Typography, Card, Button, Spacer } from '../../components/common';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
+import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
 import { ActivityTags, IntensitySlider } from '../../components/mood';
 import { theme } from '../../theme/theme';
 import { MoodType, ActivityTag, MoodData } from '../../types/mood';
@@ -41,6 +43,7 @@ const MoodInputScreen = () => {
   const navigation = useNavigation();
   const { saveMoodEntry, getMoodEntries, isLoading, error } = useMoodStorage();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
   const [state, setState] = useState<MoodInputState>({
     mood: null,
     intensity: 0.5,
@@ -48,6 +51,13 @@ const MoodInputScreen = () => {
     notes: '',
     timestamp: new Date(),
   });
+
+  // Trigger animations on each navigation to screen
+  useFocusEffect(
+    useCallback(() => {
+      setAnimationKey(prev => prev + 1);
+    }, [])
+  );
 
   const handleSave = async () => {
     if (!state.mood) return;
@@ -110,31 +120,35 @@ const MoodInputScreen = () => {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <Typography variant="h2" centered>How are you feeling?</Typography>
+          <Animated.View key={`title-${animationKey}`} entering={FadeInDown.delay(0).duration(600)}>
+            <Typography variant="h2" centered>How are you feeling?</Typography>
+          </Animated.View>
           <Spacer size="lg" />
           
           {/* Mood Selection */}
-          <View style={styles.moodGrid}>
-            {moods.map((mood) => (
-              <Card
-                key={mood.id}
-                style={[
-                  styles.moodCard,
-                  state.mood === mood.id && { borderColor: mood.color, borderWidth: 2 }
-                ]}
-                onTouchEnd={() => setState(prev => ({ ...prev, mood: mood.id as MoodType }))}
-              >
-                <Typography variant="h3" centered>{mood.label}</Typography>
-              </Card>
-            ))}
-          </View>
+          <Animated.View key={`mood-grid-${animationKey}`} entering={FadeInDown.delay(150).duration(600)}>
+            <View style={styles.moodGrid}>
+              {moods.map((mood) => (
+                <Card
+                  key={mood.id}
+                  style={[
+                    styles.moodCard,
+                    state.mood === mood.id && { borderColor: mood.color, borderWidth: 2 }
+                  ]}
+                  onTouchEnd={() => setState(prev => ({ ...prev, mood: mood.id as MoodType }))}
+                >
+                  <Typography variant="h3" centered>{mood.label}</Typography>
+                </Card>
+              ))}
+            </View>
+          </Animated.View>
 
           {state.mood && (
             <>
               <Spacer size="lg" />
 
               {/* Intensity Slider */}
-              <Card style={styles.section}>
+              <AnimatedCard key={`intensity-${animationKey}-${state.mood}`} style={styles.section} delay={300} duration={600}>
                 <Typography variant="h3">Intensity</Typography>
                 <Spacer />
                 <IntensitySlider
@@ -142,24 +156,24 @@ const MoodInputScreen = () => {
                   onValueChange={(intensity) => setState(prev => ({ ...prev, intensity }))}
                   selectedMood={state.mood}
                 />
-              </Card>
+              </AnimatedCard>
 
               <Spacer />
 
               {/* Activity Tags */}
-              <Card style={styles.section}>
+              <AnimatedCard key={`activities-${animationKey}-${state.mood}`} style={styles.section} delay={450} duration={600}>
                 <Typography variant="h3">Activities</Typography>
                 <Spacer />
                 <ActivityTags
                   selectedTags={state.activities}
                   onToggleTag={handleActivityToggle}
                 />
-              </Card>
+              </AnimatedCard>
 
               <Spacer />
 
               {/* Notes Input */}
-              <Card style={styles.section}>
+              <AnimatedCard key={`notes-${animationKey}-${state.mood}`} style={styles.section} delay={600} duration={600}>
                 <Typography variant="h3">Notes</Typography>
                 <Spacer />
                 <TextInput
@@ -172,12 +186,12 @@ const MoodInputScreen = () => {
                   placeholderTextColor={theme.colors.disabled}
                   textAlignVertical="top"
                 />
-              </Card>
+              </AnimatedCard>
 
               <Spacer />
 
               {/* Time Selection */}
-              <Card style={styles.section}>
+              <AnimatedCard key={`time-${animationKey}-${state.mood}`} style={styles.section} delay={750} duration={600}>
                 <Typography variant="h3">Time</Typography>
                 <Spacer />
                 <TouchableOpacity
@@ -194,12 +208,16 @@ const MoodInputScreen = () => {
                     onChange={handleTimeChange}
                   />
                 )}
-              </Card>
+              </AnimatedCard>
 
               <Spacer size="xl" />
 
               {/* Save Button */}
-              <View style={styles.actionContainer}>
+              <Animated.View 
+                key={`save-${animationKey}-${state.mood}`} 
+                style={styles.actionContainer}
+                entering={FadeInDown.delay(900).duration(600)}
+              >
                 <Button 
                   size="large"
                   onPress={handleSave}
@@ -207,7 +225,7 @@ const MoodInputScreen = () => {
                 >
                   {isLoading ? 'Saving...' : 'Save Mood'}
                 </Button>
-              </View>
+              </Animated.View>
 
               <Spacer size="xl" />
             </>
@@ -232,7 +250,7 @@ const styles = StyleSheet.create({
   moodGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   moodCard: {
     width: '48%',
