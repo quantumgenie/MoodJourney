@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import { Typography, Button, Spacer } from '../../components/common';
+import { Typography, Button, Spacer, AnimatedCard } from '../../components/common';
 import { SearchBar } from '../../components/journal/SearchBar';
 import { JournalEntryCard } from '../../components/journal/JournalEntryCard';
 import { FilterModal } from '../../components/journal/FilterModal';
@@ -153,12 +153,13 @@ const JournalScreen = () => {
             </Typography>
           </View>
         ) : (
-          entries.map(entry => (
+          entries.map((entry, index) => (
             <JournalEntryCard
               key={entry.id}
               entry={entry}
               onPress={() => navigation.navigate('JournalEntry', { id: entry.id })}
               onDelete={() => handleDelete(entry.id)}
+              delay={index * 200} // Staggered delay: 0ms, 100ms, 200ms, etc.
             />
           ))
         )}

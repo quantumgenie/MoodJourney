@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Typography, Card, Spacer } from '../common';
+import { Typography, Card, Spacer, AnimatedCard } from '../common';
 import { theme } from '../../theme/theme';
 import { JournalEntry } from '../../types/journal';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,12 +9,14 @@ interface JournalEntryCardProps {
   entry: JournalEntry;
   onPress: () => void;
   onDelete: () => void;
+  delay?: number;
 }
 
 export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
   entry,
   onPress,
   onDelete,
+  delay = 0,
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -26,7 +28,7 @@ export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
   };
 
   return (
-    <Card style={styles.card}>
+    <AnimatedCard style={styles.card} delay={delay} duration={400}>
       <TouchableOpacity onPress={onPress}>
         <View style={styles.header}>
           <Typography variant="caption" color="disabled">
@@ -74,7 +76,7 @@ export const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
           <MaterialIcons name="chevron-right" size={24} color={theme.colors.disabled} />
         </View>
       </TouchableOpacity>
-    </Card>
+    </AnimatedCard>
   );
 };
 
