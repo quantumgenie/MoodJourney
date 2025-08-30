@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Typography, Card, Button, Spacer } from '../../components/common';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
 import { theme } from '../../theme/theme';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -14,15 +15,18 @@ const DashboardScreen = () => {
   const navigation = useNavigation<DashboardScreenNavigationProp>();
   const { getMoodEntries } = useMoodStorage();
   const [hasTodayEntry, setHasTodayEntry] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
     checkTodayEntry();
   }, []);
 
-  // Refresh today's mood status when screen comes into focus
+  // Refresh today's mood status and trigger animations when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       checkTodayEntry();
+      // Increment animation key to force re-animation on each navigation
+      setAnimationKey(prev => prev + 1);
     }, [])
   );
 
@@ -53,10 +57,12 @@ const DashboardScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Typography variant="h1" centered>Welcome to MoodJourney</Typography>
+      <Animated.View key={`title-${animationKey}`} entering={FadeInDown.delay(0).duration(600)}>
+        <Typography variant="h1" centered>Welcome to MoodJourney</Typography>
+      </Animated.View>
       <Spacer size="lg" />
       
-      <Card variant="elevated" style={styles.card}>
+      <AnimatedCard key={`mood-${animationKey}`} variant="elevated" style={styles.card} delay={150} duration={600}>
         <Typography variant="h2">Today's Mood</Typography>
         <Spacer />
         {hasTodayEntry ? (
@@ -78,9 +84,9 @@ const DashboardScreen = () => {
             </Button>
           </>
         )}
-      </Card>
+      </AnimatedCard>
       
-      <Card variant="outlined" style={styles.card}>
+      <AnimatedCard key={`actions-${animationKey}`} variant="outlined" style={styles.card} delay={300} duration={600}>
         <Typography variant="h3">Quick Actions</Typography>
         <Spacer />
         <Button variant="outlined" onPress={navigateToJournal}>
@@ -90,18 +96,18 @@ const DashboardScreen = () => {
         <Button variant="text" onPress={navigateToAnalytics}>
           View Analytics
         </Button>
-      </Card>
+      </AnimatedCard>
 
       <Spacer size="lg" />
       
       {hasTodayEntry && (
-        <Card variant="outlined" style={styles.card}>
+        <AnimatedCard key={`summary-${animationKey}`} variant="outlined" style={styles.card} delay={450} duration={600}>
           <Typography variant="h3">Today's Summary</Typography>
           <Spacer />
           <Button variant="text" onPress={navigateToAnalytics}>
             View Details
           </Button>
-        </Card>
+        </AnimatedCard>
       )}
     </ScrollView>
   );
