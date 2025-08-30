@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Typography, Card, Button, Spacer } from '../../components/common';
 import { 
   EmotionWordCloud, 
@@ -97,6 +98,25 @@ const AnalyticsScreen = () => {
 
     loadData();
   }, [timeFrame, getMoodEntries, getJournalEntries]);
+
+  // Reload analytics data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        try {
+          const loadedMoodEntries = await getMoodEntries();
+          const loadedJournalEntries = await getJournalEntries();
+          
+          setMoodEntries(loadedMoodEntries);
+          setJournalEntries(loadedJournalEntries);
+        } catch (error) {
+          console.error('Error loading analytics data:', error);
+        }
+      };
+
+      loadData();
+    }, [timeFrame, getMoodEntries, getJournalEntries])
+  );
 
   // Update analysis when data or timeFrame changes
   useEffect(() => {

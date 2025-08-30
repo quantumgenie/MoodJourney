@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Typography, Card, Button, Spacer } from '../../components/common';
 import { theme } from '../../theme/theme';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from '../../navigation/types';
 import { useMoodStorage } from '../../hooks/useMoodStorage';
@@ -18,6 +18,13 @@ const DashboardScreen = () => {
   useEffect(() => {
     checkTodayEntry();
   }, []);
+
+  // Refresh today's mood status when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      checkTodayEntry();
+    }, [])
+  );
 
   const checkTodayEntry = async () => {
     try {

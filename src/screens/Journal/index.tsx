@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Typography, Button, Spacer } from '../../components/common';
 import { SearchBar } from '../../components/journal/SearchBar';
@@ -7,7 +7,7 @@ import { FilterModal } from '../../components/journal/FilterModal';
 import { theme } from '../../theme/theme';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
 import { JournalEntry, JournalFilter } from '../../types/journal';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
 
@@ -41,6 +41,13 @@ const JournalScreen = () => {
   useEffect(() => {
     loadEntries();
   }, [searchQuery, filter]);
+
+  // Reload entries when screen comes into focus (e.g., after creating/editing an entry)
+  useFocusEffect(
+    useCallback(() => {
+      loadEntries();
+    }, [searchQuery, filter])
+  );
 
   const handleRefresh = async () => {
     setRefreshing(true);
