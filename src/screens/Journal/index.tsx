@@ -22,6 +22,7 @@ const JournalScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filter, setFilter] = useState<JournalFilter>({});
+  const [animationKey, setAnimationKey] = useState(0);
 
   const loadEntries = async () => {
     try {
@@ -42,10 +43,12 @@ const JournalScreen = () => {
     loadEntries();
   }, [searchQuery, filter]);
 
-  // Reload entries when screen comes into focus (e.g., after creating/editing an entry)
+  // Reload entries and trigger animations when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadEntries();
+      // Trigger fresh animations on each navigation
+      setAnimationKey(prev => prev + 1);
     }, [searchQuery, filter])
   );
 
@@ -155,11 +158,11 @@ const JournalScreen = () => {
         ) : (
           entries.map((entry, index) => (
             <JournalEntryCard
-              key={entry.id}
+              key={`${entry.id}-${animationKey}`}
               entry={entry}
               onPress={() => navigation.navigate('JournalEntry', { id: entry.id })}
               onDelete={() => handleDelete(entry.id)}
-              delay={index * 200} // Staggered delay: 0ms, 100ms, 200ms, etc.
+              delay={index * 200} // Staggered delay: 0ms, 200ms, 400ms, etc.
             />
           ))
         )}
