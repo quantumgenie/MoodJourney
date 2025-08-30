@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Typography, Card, Button, Spacer } from '../../components/common';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
 import { 
   EmotionWordCloud, 
   EmotionDistributionChart,
@@ -27,6 +28,7 @@ const AnalyticsScreen = () => {
   const [timeFrame, setTimeFrame] = useState<'week' | 'month'>('week');
   const [analysisService] = useState(() => new SemanticAnalysisService());
   const [analysis, setAnalysis] = useState(analysisService.analyzeEntry(demoJournalEntry));
+  const [animationKey, setAnimationKey] = useState(0);
   
   // Storage hooks for real data
   const { isLoading: moodLoading, getMoodEntries } = useMoodStorage();
@@ -99,7 +101,7 @@ const AnalyticsScreen = () => {
     loadData();
   }, [timeFrame, getMoodEntries, getJournalEntries]);
 
-  // Reload analytics data when screen comes into focus
+  // Reload analytics data and trigger animations when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       const loadData = async () => {
@@ -115,6 +117,8 @@ const AnalyticsScreen = () => {
       };
 
       loadData();
+      // Trigger animations on each navigation
+      setAnimationKey(prev => prev + 1);
     }, [timeFrame, getMoodEntries, getJournalEntries])
   );
 
@@ -163,13 +167,13 @@ const AnalyticsScreen = () => {
           </View>
         </View>
         <Spacer size="lg" />
-        <Card style={styles.loadingCard}>
+        <AnimatedCard key={`loading-${animationKey}`} style={styles.loadingCard} delay={0} duration={600}>
           <Typography variant="h3" centered>Loading Analytics...</Typography>
           <Spacer />
           <Typography variant="body2" color="disabled" centered>
             Analyzing your mood and journal data
           </Typography>
-        </Card>
+        </AnimatedCard>
       </ScrollView>
     );
   }
@@ -197,25 +201,25 @@ const AnalyticsScreen = () => {
 
       <Spacer size="lg" />
 
-      <Card>
+      <AnimatedCard key={`wordcloud-${animationKey}`} delay={0} duration={600}>
         <EmotionWordCloud words={analysis.highlightedWords} />
-      </Card>
+      </AnimatedCard>
 
       <Spacer />
 
-      <Card>
+      <AnimatedCard key={`distribution-${animationKey}`} delay={150} duration={600}>
         <EmotionDistributionChart distribution={analysis.emotionDistribution} />
-      </Card>
+      </AnimatedCard>
 
       <Spacer />
 
-      <Card>
+      <AnimatedCard key={`alignment-${animationKey}`} delay={300} duration={600}>
         <MoodAlignmentIndicator alignment={analysis.moodAlignment} />
-      </Card>
+      </AnimatedCard>
 
       <Spacer />
 
-      <Card style={styles.insightsCard}>
+      <AnimatedCard key={`insights-${animationKey}`} style={styles.insightsCard} delay={450} duration={600}>
         <Typography variant="h3">Insights</Typography>
         <Spacer />
         <Typography variant="body1">
@@ -229,7 +233,7 @@ const AnalyticsScreen = () => {
         <Typography variant="body1">
           • Your written emotions {analysis.moodAlignment > 0.7 ? 'strongly align' : 'somewhat align'} with your selected mood
         </Typography>
-      </Card>
+      </AnimatedCard>
     </ScrollView>
   );
 };
