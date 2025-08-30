@@ -84,7 +84,9 @@ const JournalScreen = () => {
 
   const getFilterSummary = () => {
     const parts = [];
-    if (filter.mood) parts.push(`Mood: ${filter.mood}`);
+    if (filter.moods && filter.moods.length > 0) {
+      parts.push(`Moods: ${filter.moods.length} selected`);
+    }
     if (filter.activities?.length ?? 0 > 0) {
       parts.push(`Activities: ${filter.activities?.length} selected`);
     }
@@ -110,7 +112,7 @@ const JournalScreen = () => {
         onFilterPress={handleFilter}
       />
 
-      {(filter.mood || (filter.activities?.length ?? 0) > 0) && (
+      {((filter.moods?.length ?? 0) > 0 || (filter.activities?.length ?? 0) > 0) && (
         <>
           <View style={styles.filterSummary}>
             <Typography variant="caption" color="disabled">

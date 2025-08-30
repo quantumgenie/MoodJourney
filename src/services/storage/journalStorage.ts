@@ -76,8 +76,8 @@ export class JournalStorageService {
         );
       }
 
-      if (filter.mood) {
-        entries = entries.filter(entry => entry.mood === filter.mood);
+      if (filter.moods && filter.moods.length > 0) {
+        entries = entries.filter(entry => filter.moods!.includes(entry.mood));
       }
 
       if (filter.tags?.length) {

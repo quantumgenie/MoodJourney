@@ -13,7 +13,7 @@ export interface JournalEntry {
 
 export interface JournalFilter {
   searchText?: string;
-  mood?: MoodType;
+  moods?: MoodType[];
   tags?: string[];
   activities?: ActivityTag[];
   startDate?: string;

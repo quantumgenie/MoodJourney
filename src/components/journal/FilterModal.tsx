@@ -21,24 +21,34 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   onApply,
   currentFilter,
 }) => {
-  const [selectedMood, setSelectedMood] = useState<MoodType | undefined>(currentFilter.mood);
+  const [selectedMoods, setSelectedMoods] = useState<MoodType[]>(
+    currentFilter.moods || []
+  );
   const [selectedActivities, setSelectedActivities] = useState<ActivityTag[]>(
     currentFilter.activities || []
   );
 
   const handleApply = () => {
     onApply({
-      mood: selectedMood,
+      moods: selectedMoods.length > 0 ? selectedMoods : undefined,
       activities: selectedActivities,
     });
     onClose();
   };
 
   const handleClear = () => {
-    setSelectedMood(undefined);
+    setSelectedMoods([]);
     setSelectedActivities([]);
     onApply({});
     onClose();
+  };
+
+  const handleMoodToggle = (mood: MoodType) => {
+    setSelectedMoods(prev =>
+      prev.includes(mood)
+        ? prev.filter(m => m !== mood)
+        : [...prev, mood]
+    );
   };
 
   const handleActivityToggle = (activity: ActivityTag) => {
@@ -78,8 +88,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               {moods.map((mood) => (
                 <Button
                   key={mood}
-                  variant={selectedMood === mood ? 'contained' : 'outlined'}
-                  onPress={() => setSelectedMood(mood === selectedMood ? undefined : mood)}
+                  variant={selectedMoods.includes(mood) ? 'contained' : 'outlined'}
+                  onPress={() => handleMoodToggle(mood)}
                   style={[
                     styles.moodButton,
                     { borderColor: theme.colors[mood] }
@@ -143,7 +153,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    // flex: 1,
     maxHeight: 450,
   },
   scrollContentContainer: {
