@@ -23,8 +23,27 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
   const emotions = Object.entries(distribution) as [EmotionCategory, number][];
   const total = emotions.reduce((sum, [_, value]) => sum + value, 0);
 
+  // Handle empty data case
+  if (total === 0 || emotions.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Typography variant="h3" centered>Emotion Distribution</Typography>
+        <View style={styles.emptyState}>
+          <Typography variant="body2" color="disabled" centered>
+            No emotion data available
+          </Typography>
+        </View>
+      </View>
+    );
+  }
+
   // Calculate paths for the pie chart
   const createPieSlice = (startAngle: number, endAngle: number): string => {
+    // Ensure angles are valid numbers
+    if (!isFinite(startAngle) || !isFinite(endAngle)) {
+      return '';
+    }
+
     const start = {
       x: center.x + radius * Math.cos(startAngle),
       y: center.y + radius * Math.sin(startAngle),
@@ -33,6 +52,12 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
       x: center.x + radius * Math.cos(endAngle),
       y: center.y + radius * Math.sin(endAngle),
     };
+
+    // Ensure coordinates are valid numbers
+    if (!isFinite(start.x) || !isFinite(start.y) || !isFinite(end.x) || !isFinite(end.y)) {
+      return '';
+    }
+
     const largeArcFlag = endAngle - startAngle <= Math.PI ? '0' : '1';
 
     return `
@@ -47,12 +72,28 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
 
   return (
     <View style={styles.container}>
-      <Typography variant="h3" centered>Emotion Distribution</Typography>
+      <Typography variant="h3">Emotion Distribution</Typography>
       <Svg width={width} height={height}>
         {emotions.map(([emotion, value]) => {
+          // Skip if value is invalid
+          if (!isFinite(value) || value <= 0) {
+            return null;
+          }
+
           const percentage = (value / total) * 100;
           const angle = (percentage / 100) * 2 * Math.PI;
+          
+          // Skip if angle is invalid
+          if (!isFinite(angle) || angle <= 0) {
+            return null;
+          }
+
           const path = createPieSlice(currentAngle, currentAngle + angle);
+          
+          // Skip if path is empty (invalid coordinates)
+          if (!path) {
+            return null;
+          }
           
           // Calculate position for label
           const labelAngle = currentAngle + angle / 2;
@@ -61,6 +102,11 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
           const labelY = center.y + labelRadius * Math.sin(labelAngle);
           
           currentAngle += angle;
+
+          // Skip if label coordinates are invalid
+          if (!isFinite(labelX) || !isFinite(labelY)) {
+            return null;
+          }
 
           return (
             <React.Fragment key={emotion}>
@@ -94,7 +140,7 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
       
       {/* Legend */}
       <View style={styles.legend}>
-        {emotions.map(([emotion, _]) => (
+        {emotions.map(([emotion, percentage]) => (
           <View key={emotion} style={styles.legendItem}>
             <View 
               style={[
@@ -103,11 +149,14 @@ export const EmotionDistributionChart: React.FC<EmotionDistributionChartProps> =
               ]} 
             />
             <Typography variant="body2" style={{ textTransform: 'capitalize' }}>
-              {emotion}
+              {emotion} ({Math.round(percentage)}%)
             </Typography>
           </View>
         ))}
       </View>
+      <Typography variant="caption" color="disabled" centered style={styles.subtitle}>
+        Emotional distribution across all selected journal entries
+      </Typography>
     </View>
   );
 };
@@ -117,6 +166,11 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.md,
+  },
+  emptyState: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   legend: {
     flexDirection: 'row',
@@ -135,5 +189,8 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     marginRight: theme.spacing.xs,
+  },
+  subtitle: {
+    marginTop: theme.spacing.sm,
   },
 });

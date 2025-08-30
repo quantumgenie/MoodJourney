@@ -27,7 +27,7 @@ const screenOptions = {
   },
   headerTitleStyle: {
     fontSize: theme.typography.h2.fontSize,
-    fontWeight: 'bold',
+    fontWeight: 'bold' as const,
     color: theme.colors.text,
   },
 };

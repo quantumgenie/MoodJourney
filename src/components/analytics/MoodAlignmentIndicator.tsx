@@ -13,16 +13,27 @@ export const MoodAlignmentIndicator: React.FC<MoodAlignmentIndicatorProps> = ({
   alignment,
   size = 150,
 }) => {
+  // Ensure alignment is a valid number between 0 and 1
+  const safeAlignment = isFinite(alignment) ? Math.max(0, Math.min(1, alignment)) : 0;
+  
   const center = size / 2;
   const radius = (size / 2) * 0.8;
   const strokeWidth = size * 0.05;
   
   // Calculate the arc path for the gauge
   const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    // Ensure all inputs are finite numbers
+    if (!isFinite(centerX) || !isFinite(centerY) || !isFinite(radius) || !isFinite(angleInDegrees)) {
+      return { x: centerX, y: centerY };
+    }
+    
     const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    const x = centerX + (radius * Math.cos(angleInRadians));
+    const y = centerY + (radius * Math.sin(angleInRadians));
+    
     return {
-      x: centerX + (radius * Math.cos(angleInRadians)),
-      y: centerY + (radius * Math.sin(angleInRadians)),
+      x: isFinite(x) ? x : centerX,
+      y: isFinite(y) ? y : centerY,
     };
   };
 
@@ -38,7 +49,7 @@ export const MoodAlignmentIndicator: React.FC<MoodAlignmentIndicatorProps> = ({
   };
 
   const startAngle = 180;
-  const endAngle = 180 + (alignment * 180);
+  const endAngle = 180 + (safeAlignment * 180);
 
   return (
     <View style={styles.container}>
@@ -69,11 +80,11 @@ export const MoodAlignmentIndicator: React.FC<MoodAlignmentIndicatorProps> = ({
           textAnchor="middle"
           alignmentBaseline="middle"
         >
-          {`${Math.round(alignment * 100)}%`}
+          {`${Math.round(safeAlignment * 100)}%`}
         </Text>
       </Svg>
       <Typography variant="body2" centered color="disabled">
-        Match between written emotions and selected mood
+        How well your journal emotions align with your selected moods
       </Typography>
     </View>
   );
