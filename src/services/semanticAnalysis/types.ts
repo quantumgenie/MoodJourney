@@ -1,4 +1,4 @@
-export type EmotionCategory = 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'neutral';
+export type EmotionCategory = 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'calm' | 'neutral';
 
 export interface EmotionWord {
   word: string;

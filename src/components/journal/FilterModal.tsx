@@ -13,7 +13,7 @@ interface FilterModalProps {
   currentFilter: JournalFilter;
 }
 
-const moods: MoodType[] = ['happy', 'calm', 'neutral', 'sad', 'angry'];
+const moods: MoodType[] = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'calm', 'neutral'];
 
 export const FilterModal: React.FC<FilterModalProps> = ({
   visible,

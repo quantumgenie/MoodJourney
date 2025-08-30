@@ -13,19 +13,14 @@ export const theme = {
     backdrop: '#000000',
     notification: '#F50057',
 
-    // Mood colors
-    happy: '#FFD700',
-    sad: '#4169E1',
-    angry: '#FF4500',
-    calm: '#98FB98',
-    neutral: '#A9A9A9',
-
-    // Emotion colors
+    // Mood/Emotion colors
     joy: '#FFD700',
     sadness: '#4169E1',
     anger: '#FF4500',
     fear: '#800080',
     surprise: '#FF69B4',
+    calm: '#98FB98',
+    neutral: '#A9A9A9',
   },
   spacing: {
     xs: 4,

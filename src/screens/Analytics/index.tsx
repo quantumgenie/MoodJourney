@@ -19,7 +19,7 @@ const demoJournalEntry = {
   id: '1',
   content: 'Today was a wonderful day! I felt really happy and excited about my progress. Though there were some moments of anxiety, overall I remained peaceful and grateful.',
   date: new Date().toISOString(),
-  mood: 'happy',
+  mood: 'joy',
 };
 
 const AnalyticsScreen = () => {

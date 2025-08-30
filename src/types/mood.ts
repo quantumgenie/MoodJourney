@@ -1,4 +1,4 @@
-export type MoodType = 'happy' | 'calm' | 'neutral' | 'sad' | 'angry';
+export type MoodType = 'joy' | 'sadness' | 'anger' | 'fear' | 'surprise' | 'calm' | 'neutral';
 
 export interface MoodEntry {
   id: string;
@@ -27,6 +27,11 @@ export const ACTIVITY_TAGS = [
   'Health',
   'Food',
   'Sleep',
+  'Friends',
+  'Study',
+  'Meditation',
+  'Reading',
+  'Music',
 ] as const;
 
 export type ActivityTag = typeof ACTIVITY_TAGS[number];

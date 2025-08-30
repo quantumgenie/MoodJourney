@@ -21,7 +21,7 @@ import { RootStackParamList } from '../../navigation/types';
 
 type JournalEntryRouteProp = RouteProp<RootStackParamList, 'JournalEntry'>;
 
-const moods: MoodType[] = ['happy', 'calm', 'neutral', 'sad', 'angry'];
+const moods: MoodType[] = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'calm', 'neutral'];
 
 const JournalEntryScreen = () => {
   const navigation = useNavigation();

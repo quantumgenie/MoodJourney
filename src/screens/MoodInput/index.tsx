@@ -20,11 +20,13 @@ import { useMoodStorage } from '../../hooks/useMoodStorage';
 import { useNavigation } from '@react-navigation/native';
 
 const moods: MoodData[] = [
-  { id: 'happy', label: 'Happy', color: theme.colors.happy },
+  { id: 'joy', label: 'Joy', color: theme.colors.joy },
+  { id: 'sadness', label: 'Sadness', color: theme.colors.sadness },
+  { id: 'anger', label: 'Anger', color: theme.colors.anger },
+  { id: 'fear', label: 'Fear', color: theme.colors.fear },
+  { id: 'surprise', label: 'Surprise', color: theme.colors.surprise },
   { id: 'calm', label: 'Calm', color: theme.colors.calm },
   { id: 'neutral', label: 'Neutral', color: theme.colors.neutral },
-  { id: 'sad', label: 'Sad', color: theme.colors.sad },
-  { id: 'angry', label: 'Angry', color: theme.colors.angry },
 ];
 
 interface MoodInputState {

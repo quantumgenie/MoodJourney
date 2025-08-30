@@ -31,6 +31,7 @@ export class SemanticAnalysisService {
       anger: 0,
       fear: 0,
       surprise: 0,
+      calm: 0,
       neutral: 0,
     };
 
@@ -65,18 +66,25 @@ export class SemanticAnalysisService {
     selectedMood: string, 
     emotionDistribution: Record<EmotionCategory, number>
   ): number {
-    // Simplified alignment calculation
-    // In a real app, you'd want more sophisticated mapping between moods and emotions
-    const moodToEmotionMap: Record<string, EmotionCategory> = {
-      happy: 'joy',
-      sad: 'sadness',
-      angry: 'anger',
-      calm: 'neutral',
-      neutral: 'neutral',
+    // Direct alignment calculation - mood names now match emotion categories
+    const moodToEmotionMap: Record<string, EmotionCategory[]> = {
+      joy: ['joy'],
+      sadness: ['sadness'],
+      anger: ['anger'],
+      fear: ['fear'],
+      surprise: ['surprise'],
+      calm: ['calm', 'neutral'], // Calm mood aligns with both calm and neutral emotions
+      neutral: ['neutral', 'calm'], // Neutral mood can also align with calm emotions
     };
 
-    const mappedEmotion = moodToEmotionMap[selectedMood] || 'neutral';
-    return emotionDistribution[mappedEmotion] / 100; // Convert percentage to 0-1 scale
+    const alignedEmotions = moodToEmotionMap[selectedMood] || ['neutral'];
+    
+    // Calculate alignment as the sum of percentages for all aligned emotion categories
+    const alignmentScore = alignedEmotions.reduce((sum, emotion) => {
+      return sum + (emotionDistribution[emotion] || 0);
+    }, 0);
+    
+    return Math.min(alignmentScore / 100, 1); // Convert percentage to 0-1 scale, cap at 1
   }
 
   private suggestTags(dominantEmotion: EmotionCategory): string[] {
