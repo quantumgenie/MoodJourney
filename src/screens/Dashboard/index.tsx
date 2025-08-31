@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
+import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner, ErrorState } from '../../components/common';
 import { theme } from '../../theme/theme';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -22,6 +22,8 @@ const DashboardScreen = () => {
   const [hasTodayEntry, setHasTodayEntry] = useState(false);
   const [todaysSummary, setTodaysSummary] = useState<TodaysSummary | null>(null);
   const [animationKey, setAnimationKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTodaysData();
@@ -38,6 +40,9 @@ const DashboardScreen = () => {
 
   const loadTodaysData = async () => {
     try {
+      setIsLoading(true);
+      setError(null);
+      
       const [moodEntries, journalEntries] = await Promise.all([
         getMoodEntries(),
         getJournalEntries()
@@ -59,6 +64,9 @@ const DashboardScreen = () => {
       setTodaysSummary(summary);
     } catch (error) {
       console.error('Error loading today\'s data:', error);
+      setError('Failed to load today\'s data. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,6 +100,28 @@ const DashboardScreen = () => {
       navigation.navigate('Analytics');
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <LoadingSpinner message="Loading your dashboard..." />
+      </ScrollView>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <ErrorState
+          title="Unable to load dashboard"
+          message={error}
+          onRetry={loadTodaysData}
+        />
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>

@@ -14,7 +14,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
-import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
+import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner, ErrorState } from '../../components/common';
 import { ActivityTags, IntensitySlider } from '../../components/mood';
 import { theme } from '../../theme/theme';
 import { MoodType, ActivityTag, MoodData } from '../../types/mood';
@@ -60,7 +60,10 @@ const MoodInputScreen = () => {
   );
 
   const handleSave = async () => {
-    if (!state.mood) return;
+    if (!state.mood) {
+      Alert.alert('Missing Information', 'Please select a mood before saving.');
+      return;
+    }
 
     const moodEntry = {
       id: Date.now().toString(),
@@ -76,11 +79,18 @@ const MoodInputScreen = () => {
     try {
       await saveMoodEntry(moodEntry);
       
-      Alert.alert('Success', 'Mood entry saved successfully!');
-      navigation.goBack();
+      Alert.alert(
+        'Success', 
+        'Mood entry saved successfully!',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
     } catch (err) {
       console.error('Error saving mood entry:', err);
-      Alert.alert('Error', 'Failed to save mood entry. Please try again.');
+      Alert.alert(
+        'Error', 
+        error || 'Failed to save mood entry. Please try again.',
+        [{ text: 'OK' }]
+      );
     }
   };
 

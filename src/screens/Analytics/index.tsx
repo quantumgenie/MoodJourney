@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
+import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner } from '../../components/common';
 import { 
   EmotionDistributionChart,
   MoodAlignmentIndicator,
@@ -167,34 +167,7 @@ const AnalyticsScreen = () => {
   if (moodLoading || journalLoading) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <View style={styles.header}>
-          <Typography variant="h2">Mood Analytics</Typography>
-          <View style={styles.timeFrameButtons}>
-            <Button 
-              variant={timeFrame === 'week' ? 'contained' : 'text'}
-              onPress={() => setTimeFrame('week')}
-              disabled
-            >
-              Week
-            </Button>
-            <Spacer horizontal />
-            <Button 
-              variant={timeFrame === 'month' ? 'contained' : 'text'}
-              onPress={() => setTimeFrame('month')}
-              disabled
-            >
-              Month
-            </Button>
-          </View>
-        </View>
-        <Spacer size="lg" />
-        <AnimatedCard key={`loading-${animationKey}`} style={styles.loadingCard} delay={0} duration={600}>
-          <Typography variant="h3" centered>Loading Analytics...</Typography>
-          <Spacer />
-          <Typography variant="body2" color="disabled" centered>
-            Analyzing your mood and journal data
-          </Typography>
-        </AnimatedCard>
+        <LoadingSpinner message="Analyzing your mood and journal data..." />
       </ScrollView>
     );
   }

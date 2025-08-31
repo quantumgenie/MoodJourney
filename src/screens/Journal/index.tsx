@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert, RefreshControl } from 'react-native';
-import { Typography, Button, Spacer, AnimatedCard } from '../../components/common';
+import { Typography, Button, Spacer, AnimatedCard, LoadingSpinner, ErrorState } from '../../components/common';
 import { SearchBar } from '../../components/journal/SearchBar';
 import { JournalEntryCard } from '../../components/journal/JournalEntryCard';
 import { FilterModal } from '../../components/journal/FilterModal';
@@ -15,7 +15,7 @@ type JournalScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const JournalScreen = () => {
   const navigation = useNavigation<JournalScreenNavigationProp>();
-  const { getJournalEntries, deleteJournalEntry, searchJournalEntries, isLoading } = useJournalStorage();
+  const { getJournalEntries, deleteJournalEntry, searchJournalEntries, isLoading, error } = useJournalStorage();
   
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,6 +23,7 @@ const JournalScreen = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filter, setFilter] = useState<JournalFilter>({});
   const [animationKey, setAnimationKey] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const loadEntries = async () => {
     try {
@@ -36,6 +37,8 @@ const JournalScreen = () => {
     } catch (error) {
       console.error('Error loading entries:', error);
       Alert.alert('Error', 'Failed to load journal entries');
+    } finally {
+      setInitialLoading(false);
     }
   };
 
@@ -51,6 +54,28 @@ const JournalScreen = () => {
       setAnimationKey(prev => prev + 1);
     }, [searchQuery, filter])
   );
+
+  // Show initial loading state
+  if (initialLoading && isLoading) {
+    return (
+      <View style={styles.container}>
+        <LoadingSpinner message="Loading your journal entries..." />
+      </View>
+    );
+  }
+
+  // Show error state
+  if (error && entries.length === 0 && !isLoading) {
+    return (
+      <View style={styles.container}>
+        <ErrorState
+          title="Unable to load journal entries"
+          message={error}
+          onRetry={loadEntries}
+        />
+      </View>
+    );
+  }
 
   const handleRefresh = async () => {
     setRefreshing(true);

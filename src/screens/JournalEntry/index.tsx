@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Typography, Button, Spacer, AnimatedCard, AnimatedTextInputComponent } from '../../components/common';
+import { Typography, Button, Spacer, AnimatedCard, AnimatedTextInputComponent, LoadingSpinner, ErrorState } from '../../components/common';
 import { ActivityTags } from '../../components/mood';
 import { theme } from '../../theme/theme';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
@@ -27,7 +27,8 @@ const moods: MoodType[] = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'calm'
 const JournalEntryScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<JournalEntryRouteProp>();
-  const { saveJournalEntry, getJournalEntry, isLoading } = useJournalStorage();
+  const { saveJournalEntry, getJournalEntry, isLoading, error } = useJournalStorage();
+  const [initialLoading, setInitialLoading] = useState(false);
 
   const [entry, setEntry] = useState<Partial<JournalEntry>>({
     title: '',
@@ -40,9 +41,16 @@ const JournalEntryScreen = () => {
   useEffect(() => {
     const loadEntry = async () => {
       if (route.params?.id) {
-        const existingEntry = await getJournalEntry(route.params.id);
-        if (existingEntry) {
-          setEntry(existingEntry);
+        setInitialLoading(true);
+        try {
+          const existingEntry = await getJournalEntry(route.params.id);
+          if (existingEntry) {
+            setEntry(existingEntry);
+          }
+        } catch (err) {
+          Alert.alert('Error', 'Failed to load journal entry');
+        } finally {
+          setInitialLoading(false);
         }
       }
     };
@@ -69,9 +77,16 @@ const JournalEntryScreen = () => {
       };
 
       await saveJournalEntry(completeEntry);
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to save journal entry');
+      Alert.alert(
+        'Success',
+        'Journal entry saved successfully!',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } catch (err) {
+      Alert.alert(
+        'Error', 
+        error || 'Failed to save journal entry. Please try again.'
+      );
     }
   };
 
@@ -83,6 +98,15 @@ const JournalEntryScreen = () => {
         : [...(prev.activities || []), activity],
     }));
   };
+
+  // Show loading state for existing entry
+  if (initialLoading) {
+    return (
+      <View style={styles.container}>
+        <LoadingSpinner message="Loading journal entry..." />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
