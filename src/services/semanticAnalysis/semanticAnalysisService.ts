@@ -36,6 +36,8 @@ export class SemanticAnalysisService {
     };
 
     if (emotionWords.length === 0) {
+      // For neutral/empty content, set neutral to 100%
+      distribution.neutral = 100;
       return distribution;
     }
 
