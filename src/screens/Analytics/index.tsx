@@ -9,7 +9,7 @@ import {
   ActivityEffectivenessCard,
 } from '../../components/analytics';
 import { theme } from '../../theme/theme';
-import { SemanticAnalysisService } from '../../services/semanticAnalysis';
+import { SemanticAnalysisService, SemanticAnalysisResult } from '../../services/semanticAnalysis';
 import { ActivityCorrelationService, ActivityCorrelation, ActivityInsight } from '../../services/analytics/activityCorrelationService';
 import { useMoodStorage } from '../../hooks/useMoodStorage';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
@@ -17,19 +17,28 @@ import { MoodEntry } from '../../types/mood';
 import { JournalEntry } from '../../types/journal';
 import { subDays, subWeeks, isAfter } from 'date-fns';
 
-// Temporary demo data
-const demoJournalEntry = {
-  id: '1',
-  content: 'Today was a wonderful day! I felt really happy and excited about my progress. Though there were some moments of anxiety, overall I remained peaceful and grateful.',
-  date: new Date().toISOString(),
-  mood: 'joy',
-};
+// Empty state for analytics when no data is available
+const getEmptyAnalysis = (): SemanticAnalysisResult => ({
+  dominantEmotion: 'neutral',
+  emotionDistribution: {
+    joy: 0,
+    sadness: 0,
+    anger: 0,
+    fear: 0,
+    surprise: 0,
+    calm: 0,
+    neutral: 0,
+  },
+  highlightedWords: [],
+  moodAlignment: 0,
+  suggestedTags: [],
+});
 
 const AnalyticsScreen = () => {
   const [timeFrame, setTimeFrame] = useState<'today' | 'week' | 'month'>('week');
   const [analysisService] = useState(() => new SemanticAnalysisService());
   const [correlationService] = useState(() => new ActivityCorrelationService());
-  const [analysis, setAnalysis] = useState(analysisService.analyzeEntry(demoJournalEntry));
+  const [analysis, setAnalysis] = useState<SemanticAnalysisResult>(getEmptyAnalysis());
   const [activityCorrelations, setActivityCorrelations] = useState<ActivityCorrelation[]>([]);
   const [activityInsights, setActivityInsights] = useState<ActivityInsight[]>([]);
   const [animationKey, setAnimationKey] = useState(0);
@@ -76,8 +85,8 @@ const AnalyticsScreen = () => {
     const { filteredJournalEntries } = getFilteredData();
     
     if (filteredJournalEntries.length === 0) {
-      // Return demo analysis if no real data
-      return analysisService.analyzeEntry(demoJournalEntry);
+      // Return empty analysis if no real data
+      return getEmptyAnalysis();
     }
 
     // Combine all journal entries into one analysis

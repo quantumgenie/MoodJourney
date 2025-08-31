@@ -74,11 +74,7 @@ const MoodInputScreen = () => {
     };
 
     try {
-      console.log('Attempting to save mood entry:', moodEntry);
       await saveMoodEntry(moodEntry);
-      
-      const entries = await getMoodEntries();
-      console.log('All stored entries:', entries);
       
       Alert.alert('Success', 'Mood entry saved successfully!');
       navigation.goBack();
