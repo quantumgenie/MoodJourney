@@ -26,7 +26,7 @@ const demoJournalEntry = {
 };
 
 const AnalyticsScreen = () => {
-  const [timeFrame, setTimeFrame] = useState<'week' | 'month'>('week');
+  const [timeFrame, setTimeFrame] = useState<'today' | 'week' | 'month'>('week');
   const [analysisService] = useState(() => new SemanticAnalysisService());
   const [correlationService] = useState(() => new ActivityCorrelationService());
   const [analysis, setAnalysis] = useState(analysisService.analyzeEntry(demoJournalEntry));
@@ -45,16 +45,28 @@ const AnalyticsScreen = () => {
   // Time-based filtering function
   const getFilteredData = () => {
     const now = new Date();
-    const cutoffDate = timeFrame === 'week' ? subWeeks(now, 1) : subDays(now, 30);
+    let filteredMoodEntries: MoodEntry[];
+    let filteredJournalEntries: JournalEntry[];
     
-    // Add null checks for arrays
-    const filteredMoodEntries = (moodEntries || []).filter(entry => 
-      isAfter(new Date(entry.timestamp), cutoffDate)
-    );
-    
-    const filteredJournalEntries = (journalEntries || []).filter(entry => 
-      isAfter(new Date(entry.createdAt), cutoffDate)
-    );
+    if (timeFrame === 'today') {
+      // Filter for today only
+      const today = now.toISOString().split('T')[0];
+      filteredMoodEntries = (moodEntries || []).filter(entry => 
+        entry.timestamp.split('T')[0] === today
+      );
+      filteredJournalEntries = (journalEntries || []).filter(entry => 
+        entry.createdAt.split('T')[0] === today
+      );
+    } else {
+      // Filter for week or month
+      const cutoffDate = timeFrame === 'week' ? subWeeks(now, 1) : subDays(now, 30);
+      filteredMoodEntries = (moodEntries || []).filter(entry => 
+        isAfter(new Date(entry.timestamp), cutoffDate)
+      );
+      filteredJournalEntries = (journalEntries || []).filter(entry => 
+        isAfter(new Date(entry.createdAt), cutoffDate)
+      );
+    }
     
     return { filteredMoodEntries, filteredJournalEntries };
   };
@@ -184,15 +196,25 @@ const AnalyticsScreen = () => {
         <Typography variant="h2">Mood Analytics</Typography>
         <View style={styles.timeFrameButtons}>
           <Button 
+            variant={timeFrame === 'today' ? 'contained' : 'text'}
+            onPress={() => setTimeFrame('today')}
+            style={styles.timeFrameButton}
+          >
+            Today
+          </Button>
+          <Spacer horizontal size="sm" />
+          <Button 
             variant={timeFrame === 'week' ? 'contained' : 'text'}
             onPress={() => setTimeFrame('week')}
+            style={styles.timeFrameButton}
           >
             Week
           </Button>
-          <Spacer horizontal />
+          <Spacer horizontal size="sm" />
           <Button 
             variant={timeFrame === 'month' ? 'contained' : 'text'}
             onPress={() => setTimeFrame('month')}
+            style={styles.timeFrameButton}
           >
             Month
           </Button>
@@ -259,6 +281,9 @@ const styles = StyleSheet.create({
   timeFrameButtons: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  timeFrameButton: {
+    minWidth: 60,
   },
   insightsCard: {
     padding: theme.spacing.md,

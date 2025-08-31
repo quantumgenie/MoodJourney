@@ -7,7 +7,7 @@ import { ActivityCorrelation, ActivityInsight } from '../../services/analytics/a
 interface ActivityEffectivenessCardProps {
   correlations: ActivityCorrelation[];
   insights: ActivityInsight[];
-  timeFrame: 'week' | 'month';
+  timeFrame: 'today' | 'week' | 'month';
 }
 
 interface ActivityRowProps {
@@ -111,7 +111,7 @@ export const ActivityEffectivenessCard: React.FC<ActivityEffectivenessCardProps>
         <Typography variant="h3">Activity Effectiveness</Typography>
         <Spacer size="sm" />
         <Typography variant="body2" color="disabled">
-          How activities affect your mood (this {timeFrame})
+          How activities affect your mood ({timeFrame === 'today' ? 'today' : `this ${timeFrame}`})
         </Typography>
         <Spacer />
         <View style={styles.emptyState}>
@@ -144,7 +144,7 @@ export const ActivityEffectivenessCard: React.FC<ActivityEffectivenessCardProps>
       <Typography variant="h3">Activity Effectiveness</Typography>
       <Spacer size="sm" />
       <Typography variant="body2" color="disabled">
-        How activities affect your mood (this {timeFrame})
+        How activities affect your mood ({timeFrame === 'today' ? 'today' : `this ${timeFrame}`})
       </Typography>
       
       <Spacer />
