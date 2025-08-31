@@ -194,6 +194,7 @@ const AnalyticsScreen = () => {
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
         <Typography variant="h2">Mood Analytics</Typography>
+        <Spacer size="sm" />
         <View style={styles.timeFrameButtons}>
           <Button 
             variant={timeFrame === 'today' ? 'contained' : 'text'}
@@ -274,9 +275,8 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xl + 60, // Extra padding for tab bar (60px) + spacing
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   timeFrameButtons: {
     flexDirection: 'row',
