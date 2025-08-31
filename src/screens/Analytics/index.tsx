@@ -4,12 +4,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Typography, Card, Button, Spacer, AnimatedCard } from '../../components/common';
 import { 
-  EmotionWordCloud, 
   EmotionDistributionChart,
   MoodAlignmentIndicator,
+  ActivityEffectivenessCard,
 } from '../../components/analytics';
 import { theme } from '../../theme/theme';
 import { SemanticAnalysisService } from '../../services/semanticAnalysis';
+import { ActivityCorrelationService, ActivityCorrelation, ActivityInsight } from '../../services/analytics/activityCorrelationService';
 import { useMoodStorage } from '../../hooks/useMoodStorage';
 import { useJournalStorage } from '../../hooks/useJournalStorage';
 import { MoodEntry } from '../../types/mood';
@@ -27,7 +28,10 @@ const demoJournalEntry = {
 const AnalyticsScreen = () => {
   const [timeFrame, setTimeFrame] = useState<'week' | 'month'>('week');
   const [analysisService] = useState(() => new SemanticAnalysisService());
+  const [correlationService] = useState(() => new ActivityCorrelationService());
   const [analysis, setAnalysis] = useState(analysisService.analyzeEntry(demoJournalEntry));
+  const [activityCorrelations, setActivityCorrelations] = useState<ActivityCorrelation[]>([]);
+  const [activityInsights, setActivityInsights] = useState<ActivityInsight[]>([]);
   const [animationKey, setAnimationKey] = useState(0);
   
   // Storage hooks for real data
@@ -88,11 +92,6 @@ const AnalyticsScreen = () => {
         
         setMoodEntries(loadedMoodEntries);
         setJournalEntries(loadedJournalEntries);
-        
-        console.log('Loaded real data:', { 
-          moodEntries: loadedMoodEntries.length, 
-          journalEntries: loadedJournalEntries.length 
-        });
       } catch (error) {
         console.error('Error loading analytics data:', error);
       }
@@ -130,16 +129,17 @@ const AnalyticsScreen = () => {
     }
 
     const { filteredMoodEntries, filteredJournalEntries } = getFilteredData();
-    console.log(`Analytics data for ${timeFrame}:`, {
-      totalMoodEntries: moodEntries.length,
-      filteredMoodEntries: filteredMoodEntries.length,
-      totalJournalEntries: journalEntries.length,
-      filteredJournalEntries: filteredJournalEntries.length,
-    });
 
-    // Recalculate analysis with real data
+    // Recalculate journal analysis with real data
     const newAnalysis = getAggregatedAnalysis();
     setAnalysis(newAnalysis);
+    
+    // Calculate activity correlations from mood entries
+    const correlations = correlationService.analyzeActivityCorrelations(filteredMoodEntries);
+    const insights = correlationService.generateInsights(correlations);
+    
+    setActivityCorrelations(correlations);
+    setActivityInsights(insights);
   }, [moodEntries, journalEntries, timeFrame]);
 
   // Show loading state
@@ -201,8 +201,12 @@ const AnalyticsScreen = () => {
 
       <Spacer size="lg" />
 
-      <AnimatedCard key={`wordcloud-${animationKey}`} delay={0} duration={600}>
-        <EmotionWordCloud words={analysis.highlightedWords} />
+      <AnimatedCard key={`activity-effectiveness-${animationKey}`} delay={0} duration={600}>
+        <ActivityEffectivenessCard 
+          correlations={activityCorrelations}
+          insights={activityInsights}
+          timeFrame={timeFrame}
+        />
       </AnimatedCard>
 
       <Spacer />
