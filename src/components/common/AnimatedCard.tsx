@@ -1,13 +1,5 @@
 import React from 'react';
-import { ViewStyle } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
-  withDelay,
-  FadeInDown,
-  SlideInUp,
-} from 'react-native-reanimated';
+import { View, ViewStyle } from 'react-native';
 import { Card } from './Card';
 import { CardProps } from './Card';
 
@@ -31,23 +23,12 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
   padding,
   ...props
 }) => {
-  const getEnteringAnimation = () => {
-    switch (animationType) {
-      case 'slideInUp':
-        return SlideInUp.delay(delay).duration(duration);
-      case 'scale':
-        return FadeInDown.delay(delay).duration(duration).springify();
-      case 'fadeInDown':
-      default:
-        return FadeInDown.delay(delay).duration(duration);
-    }
-  };
-
+  // For Snack compatibility, just render the card without animations
   return (
-    <Animated.View entering={getEnteringAnimation()}>
+    <View>
       <Card style={style} variant={variant} padding={padding} {...props}>
         {children}
       </Card>
-    </Animated.View>
+    </View>
   );
 };

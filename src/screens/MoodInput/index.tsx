@@ -11,8 +11,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+// DateTimePicker removed for Snack compatibility
+// Using Snack-compatible animations
+import { FadeInView, SlideInView } from '../../components/common/SnackCompatibleAnimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner, ErrorState } from '../../components/common';
 import { ActivityTags, IntensitySlider } from '../../components/mood';
@@ -103,11 +104,10 @@ const MoodInputScreen = () => {
     }));
   };
 
-  const handleTimeChange = (event: any, selectedDate?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setState(prev => ({ ...prev, timestamp: selectedDate }));
-    }
+  const handleTimeChange = () => {
+    // For Snack compatibility, we'll just use the current time
+    setState(prev => ({ ...prev, timestamp: new Date() }));
+    setShowTimePicker(false);
   };
 
   const formatTime = (date: Date) => {
@@ -126,13 +126,13 @@ const MoodInputScreen = () => {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View key={`title-${animationKey}`} entering={FadeInDown.delay(0).duration(600)}>
+          <View key={`title-${animationKey}`}>
             <Typography variant="h2" centered>How are you feeling?</Typography>
-          </Animated.View>
+          </View>
           <Spacer size="lg" />
           
           {/* Mood Selection */}
-          <Animated.View key={`mood-grid-${animationKey}`} entering={FadeInDown.delay(150).duration(600)}>
+          <View key={`mood-grid-${animationKey}`}>
             <View style={styles.moodGrid}>
               {moods.map((mood) => (
                 <Card
@@ -147,7 +147,7 @@ const MoodInputScreen = () => {
                 </Card>
               ))}
             </View>
-          </Animated.View>
+          </View>
 
           {state.mood && (
             <>
@@ -201,28 +201,21 @@ const MoodInputScreen = () => {
                 <Typography variant="h3">Time</Typography>
                 <Spacer />
                 <TouchableOpacity
-                  onPress={() => setShowTimePicker(true)}
+                  onPress={handleTimeChange}
                   style={styles.timeSelector}
                 >
                   <Typography variant="body1">{formatTime(state.timestamp)}</Typography>
+                  <Typography variant="caption" style={styles.timeHint}>Tap to use current time</Typography>
                 </TouchableOpacity>
-                {showTimePicker && (
-                  <DateTimePicker
-                    value={state.timestamp}
-                    mode="time"
-                    is24Hour={true}
-                    onChange={handleTimeChange}
-                  />
-                )}
               </AnimatedCard>
 
               <Spacer size="xl" />
 
               {/* Save Button */}
-              <Animated.View 
-                key={`save-${animationKey}-${state.mood}`} 
+              <FadeInView 
+                delay={900} 
+                duration={600}
                 style={styles.actionContainer}
-                entering={FadeInDown.delay(900).duration(600)}
               >
                 <Button 
                   size="large"
@@ -231,7 +224,7 @@ const MoodInputScreen = () => {
                 >
                   {isLoading ? 'Saving...' : 'Save Mood'}
                 </Button>
-              </Animated.View>
+              </FadeInView>
 
               <Spacer size="xl" />
             </>
@@ -282,6 +275,10 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.disabled,
     borderRadius: theme.borderRadius.sm,
     alignItems: 'center',
+  },
+  timeHint: {
+    marginTop: theme.spacing.xs,
+    opacity: 0.6,
   },
 });
 

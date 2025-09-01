@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Typography, Button, Spacer, AnimatedCard, AnimatedTextInputComponent, LoadingSpinner, ErrorState } from '../../components/common';
 import { ActivityTags } from '../../components/mood';
@@ -181,10 +181,7 @@ const JournalEntryScreen = () => {
 
           <Spacer size="xl" />
 
-          <Animated.View 
-            style={styles.actions}
-            entering={FadeInDown.delay(600).duration(600)}
-          >
+          <View style={styles.actions}>
             <Button
               size="large"
               onPress={handleSave}
@@ -192,7 +189,7 @@ const JournalEntryScreen = () => {
             >
               {isLoading ? 'Saving...' : 'Save Entry'}
             </Button>
-          </Animated.View>
+          </View>
 
           <Spacer size="xl" />
         </ScrollView>

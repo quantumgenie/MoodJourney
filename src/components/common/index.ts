@@ -6,3 +6,4 @@ export * from './AnimatedCard';
 export * from './AnimatedTextInput';
 export * from './LoadingSpinner';
 export * from './ErrorState';
+export * from './SnackCompatibleAnimated';

@@ -1,9 +1,5 @@
 import React from 'react';
 import { TextInput, TextInputProps, ViewStyle } from 'react-native';
-import Animated, { 
-  FadeInDown,
-  SlideInUp,
-} from 'react-native-reanimated';
 
 interface AnimatedTextInputProps extends TextInputProps {
   delay?: number;
@@ -12,8 +8,6 @@ interface AnimatedTextInputProps extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
-
 export const AnimatedTextInputComponent: React.FC<AnimatedTextInputProps> = ({
   delay = 0,
   animationType = 'fadeInDown',
@@ -21,19 +15,9 @@ export const AnimatedTextInputComponent: React.FC<AnimatedTextInputProps> = ({
   containerStyle,
   ...props
 }) => {
-  const getEnteringAnimation = () => {
-    switch (animationType) {
-      case 'slideInUp':
-        return SlideInUp.delay(delay).duration(duration);
-      case 'fadeInDown':
-      default:
-        return FadeInDown.delay(delay).duration(duration);
-    }
-  };
-
+  // For Snack compatibility, just render regular TextInput without animations
   return (
-    <AnimatedTextInput
-      entering={getEnteringAnimation()}
+    <TextInput
       style={[containerStyle, props.style]}
       {...props}
     />

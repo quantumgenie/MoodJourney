@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner, ErrorState } from '../../components/common';
 import { theme } from '../../theme/theme';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -125,9 +124,9 @@ const DashboardScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Animated.View key={`title-${animationKey}`} entering={FadeInDown.delay(0).duration(600)}>
+      <View key={`title-${animationKey}`}>
         <Typography variant="h1" centered>Welcome to MoodJourney</Typography>
-      </Animated.View>
+      </View>
       <Spacer size="lg" />
       
       <AnimatedCard key={`mood-${animationKey}`} variant="elevated" style={styles.card} delay={150} duration={600}>

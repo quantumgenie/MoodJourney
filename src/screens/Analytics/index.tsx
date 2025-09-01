@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+// Animated removed for Snack compatibility
 import { Typography, Card, Button, Spacer, AnimatedCard, LoadingSpinner } from '../../components/common';
 import { 
   EmotionDistributionChart,
