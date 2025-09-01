@@ -9,7 +9,10 @@
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest --testPathPatterns=integration",
+    "test:unit": "jest --testPathPatterns=__tests__",
+    "test:all": "jest --testPathPatterns='(__tests__|integration)'"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
